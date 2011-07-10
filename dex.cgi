@@ -26,7 +26,7 @@ use Time::HiRes;
 use lib '/home/conor/Dropbox/perl/_pm';
 use ironhide;
 
-use lib '/home/conor/git/test/dex/lib';
+use lib '/home/conor/git/dex/lib';
 use dex::util;
 
 my $time_start = Time::HiRes::gettimeofday();
