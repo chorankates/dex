@@ -40,6 +40,7 @@ my (%d, %p, %s); # database, incoming parameters, settings
     #host         => get_ip(),
     host_dir     => '/dex/',
     cgi_dir      => '/cgi-bin/',
+	torrent_dir => '/home/conor/dl/_torrent/src/', # will list the last 100 .torrent files in this directory if -d 
     
     db_folder    => "/home/conor/dex/", # having www-data permission issues when trying to updated the DB in Dropbox
     db           => "", # dynamically defined below
@@ -186,6 +187,29 @@ unless (param()) {
         if ($lresults) {
             dex::util::log_error("error opening error file '$s{error_file}' (yo dawg): $lresults");
         } else {
+			# display last 100 torrents for debugging / sanity checking
+			if (defined $s{torrent_dir} and -d $s{torrent_dir}) {
+				print h2("latest contents of $s{torrent_dir}");
+				print "<table border='0'>";
+				if (0) {
+					# could do this with a shell out 
+					my @files = `ls -lut $s{torrent_dir} | head -n 100`;
+					foreach my $line (@files) {
+						print "<tr><td>$line</td></tr>";
+					}
+					
+				} else {
+					# or could do a fancy sort
+					my @files = glob($s{torrent_dir} . '/*');
+					foreach my $file ( sort { (stat($a))[7] <=> (stat($b))[7] } @files)  {
+						print "<tr><td>" . localtime((stat($file))[7]) . "</td><td>$file</td></tr>";
+					}
+				}
+				
+				print "</table>";
+			}
+			
+			# dumping error_dex-crawl.log
             my @c = <$fh>;
             print h2("contents of $s{error_file}:");
             print "<table border=0>";
