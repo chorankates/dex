@@ -1,0 +1,34 @@
+dex is a system to help manage large media collections. currently focused on movies and TV shows, but would like to integrate music at a later date.
+
+it is composed of 3 parts:
+	dex.cgi      - web application to view, update and search index
+	dex-crawl.pl - cron script that looks for new media and adds it to the database
+	dex.sqlite   - SQLite (orly?) database storing all text content
+
+existing functionality:
+	dex-crawl.pl
+		- search multiple directories for all media types (everything except \.(txt|log|srt|nfo|jpg|png|htm|ico|idx|sub|mp3|sfv|pdf|ini|zip)$
+		- keeps track of file size, modified time, media type, full file path
+		- prevents duplicate additions by md5 hashing the filename as the key column
+		- pulls meta-data from file names (movies only support year, but TV shows can include season number and ep name)
+		- gets additional meta-data for movies from IMDB (year released, director, cover image, notes, summary, actors, genres) 
+		- flags files containing 'bad' characters / other unwanted characteristics, skips adding them to the database (and logs the ffp out)
+		- database functionality to remove moved/renamed/deleted files
+
+	dex.cgi
+		- allows search by any DB column (except tbl_stats), direct SELECT statements
+			tbl_tv     => uid, show, season, episode, title, actors, genres, notes, wikipedia, cover, added, released, ffp
+			tbl_movies => uid, title, director, actors, genres, notes, imdb, cover, added, released, ffp       
+			tbl_stats  => uid, name, value
+		- admin page displays dex-crawl_error.log
+
+
+todo:
+	- externalize configuration into XML / YAML so that it can be more easily shared across script
+	- finish get_wikipedia() implementation
+	- implement limits on the number of items returned in a search 
+	- add 'rescan' functions to admin console
+	- display contents of tbl_stats on admin console
+	- use HTML::TagCloud::Simple to show some clouds on landing page
+	- build better search interface on landing page
+
