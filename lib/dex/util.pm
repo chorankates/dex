@@ -1,4 +1,5 @@
 package dex::util;
+
 use strict;
 use warnings;
 
@@ -10,7 +11,7 @@ use URI::Escape;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(log_error create_db nicetime cleanup_sql cleanup_uri cleanup_filename escape_uri);
+our @EXPORT_OK = qw(log_error create_db nicetime nicesize timetaken cleanup_sql cleanup_uri cleanup_filename escape_uri);
 our @EXPORT = qw(get_info_from_filename get_md5 get_sql put_sql database_maintenance download_file get_imdb get_wikipedia);
 
 # todo
@@ -907,6 +908,87 @@ sub nicetime {
     if ($type eq "both") { return $full; }
 }
 
+sub nicesize {
+    # nicesize($size) - returns a nicely formatted size
+    my ($b, $k, $m, $g);
+    my (@out, $output, $max_type);
+
+    $max_type = "0"; # 4=gb, 3=mb, 2=kb, 1=b
+
+    $b = shift @_;
+    $g = int($b / (1024 * 1024 * 1024)); # there are 1073471824 bytes in each GB
+    $b %= 1024*1024*1024;
+    $m = int($b / (1024 * 1024));        # there are 1048576 bytes in each MB
+    $b %= 1024*1024;
+    $k = int($b / 1024);                 # there are 1024 bytes in each KB
+    $b %= 1024;
+
+    # build the return
+    # start by finding the biggest class (MB or GB usually)
+    if ($g gt 0) { 
+	push @out, $g;
+	if ($max_type lt 4) { $max_type = 4; }
+    }
+    if ($m gt 0) {
+	push @out, $m;
+	if ($max_type lt 3) { $max_type = 3; }
+    }
+    if ($k gt 0) {
+	push @out, $k;
+	if ($max_type lt 2) { $max_type = 2; }
+    }
+    if (($g eq 0) and ($m eq 0) and ($k eq 0)) {
+	push @out, $b;
+	if ($max_type lt 1) { $max_type = 1; }
+    }
+
+    # ternary isn't necessarily faster, but it looks SO much cooler
+    $max_type =
+        ($max_type eq 4) ? "gb" :
+        ($max_type eq 3) ? "mb" :
+        ($max_type eq 2) ? "kb" :
+                           "b";
+
+    $output = join(".",@out);
+    $output = $output . $max_type;
+
+    return $output;
+}
+
+
+
+sub timetaken{
+    # timetaken(\@time1, \@time2) - returns the difference between times
+    # right now only supporting diffs measured in hours, and will break on wraparound hours
+    my ($aref1, $aref2, @time1, @time2);
+    $aref1 = shift @_;  $aref2 = shift @_;
+    @time1 = @{$aref1}; @time2 = @{$aref2};
+	
+    my ($diff_second, $diff_minute, $diff_hour);
+
+    # main handling
+    if ($time1[0] <= $time2[0]) {
+	$diff_second = $time2[0] - $time1[0];
+	$diff_minute = $time2[1] - $time1[1];
+    } else {
+	$diff_second = ($time2[0] + 60) - $time1[0];
+	$diff_minute = ($time2[1] - 1) - $time1[1];
+    }
+    # hour handling
+    if ($time1[2] <= $time2[2]) {
+        # if hour for first time is less than hour for second time
+        # then we know a wraparound happened (ie 8:58 -> 9:02)
+        $diff_hour = 0; # still potentially a problem on 24 hour loops, but les
+    } else {
+        $diff_hour   = $time2[2] - $time1[2];
+    }
+
+    # stickler for leading 0 if 1 < N > 10, flexing some regex muscle
+    foreach ($diff_second, $diff_minute, $diff_hour) { $_ =~ /^(\d{1})$/; if (($1) and length($1) eq 1) { $_ = 0 . $_; } }
+
+    my $return = $diff_hour . "h" . $diff_minute . "m" . $diff_second . "s";
+    return $return;
+}
 
 sub escape_uri {
 	# uri_escape($string, [reverse]) - returns a URI escaped version of $string, if [reverse] is specified, we unescape it

@@ -20,17 +20,14 @@ use CGI::Carp 'fatalsToBrowser'; # dbgz
 use Data::Dumper;
 use DBD::SQLite;
 use File::Basename;
-require File::Spec;
+use File::Spec;
 use Time::HiRes;
 
-use lib '/home/conor/Dropbox/perl/_pm';
-use ironhide;
-
-use lib '/home/conor/git/dex/lib';
+use lib './lib';
+use lib '../lib'; # currently relying on this one
 use dex::util;
 
 my $time_start = Time::HiRes::gettimeofday();
-
 
 ## define some defaults
 my (%d, %p, %s); # database, incoming parameters, settings
@@ -40,7 +37,7 @@ my (%d, %p, %s); # database, incoming parameters, settings
     #host         => get_ip(),
     host_dir     => '/dex/',
     cgi_dir      => '/cgi-bin/',
-	torrent_dir => '/home/conor/dl/_torrent/src/', # will list the last 100 .torrent files in this directory if -d 
+    torrent_dir  => '/home/conor/dl/_torrent/src/', # will list the last 100 .torrent files in this directory if -d 
     
     db_folder    => "/home/conor/dex/", # having www-data permission issues when trying to updated the DB in Dropbox
     db           => "", # dynamically defined below

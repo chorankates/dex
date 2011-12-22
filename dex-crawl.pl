@@ -11,9 +11,6 @@ use 5.010;
 use lib 'lib';
 use dex::util;
 
-use lib '/home/conor/Dropbox/perl/_pm';
-use ironhide;
-
 use Cwd;
 use Data::Dumper;
 #use Data::UUID;
@@ -70,7 +67,7 @@ $s{image_dir} = File::Spec->catdir($s{working_dir}, "media_images");
 %dex::util::settings = %s; # excellent..
 
 my @t1 = localtime;
-print "% $0 started at ", nicetime(\@t1, "time"), "\n" if $s{verbose} ge 1;
+print "% $0 started at ", dex::util::nicetime(\@t1, "time"), "\n" if $s{verbose} ge 1;
 
 if ($s{rescan}) {
 	# delete artifacts and scan from scratch
@@ -119,12 +116,12 @@ foreach my $type (@{$s{media_types}}) {
 		%files = crawl_dir($dir, 0, $type, \%files);
 	}
 	my @lt_index_time_end = localtime;
-	print "  done indexing $type, took ", timetaken(\@lt_index_time_begin, \@lt_index_time_end), "\n" if $s{verbose} ge 2;
+	print "  done indexing $type, took ", dex::util::timetaken(\@lt_index_time_begin, \@lt_index_time_end), "\n" if $s{verbose} ge 2;
 }
 
 store(\%files, $s{dbg_storable}); # should throw some debug message
 my @lt_find_files_end = localtime;
-print "  done indexing media, found ", scalar keys %files, " files, took ", timetaken(\@lt_find_files_begin, \@lt_find_files_end), "\n" if $s{verbose} ge 1;
+print "  done indexing media, found ", scalar keys %files, " files, took ", dex::util::timetaken(\@lt_find_files_begin, \@lt_find_files_end), "\n" if $s{verbose} ge 1;
 
 ## find out which ones are new and add them to the db
 my @lt_find_new_files_begin = localtime;
@@ -167,7 +164,7 @@ foreach my $ffp (sort keys %files) {
 	$added++;
 }
 my @lt_find_new_files_end = localtime;
-print "  done adding, found/added $added new files, took ", timetaken(\@lt_find_new_files_begin, \@lt_find_new_files_end), "\n" if $s{verbose} ge 1;
+print "  done adding, found/added $added new files, took ", dex::util::timetaken(\@lt_find_new_files_begin, \@lt_find_new_files_end), "\n" if $s{verbose} ge 1;
 
 my @tv_files    = grep { $files{$_}{type} eq 'tv' }     keys %files;
 my @movie_files = grep { $files{$_}{type} eq 'movies' } keys %files;
@@ -193,14 +190,14 @@ print(
 	  "  done: non-existent entries removed ($tv_removed_count tv files, $movie_removed_count movie files), ",
 	  "wiki/imdb information added ($tv_wiki_count tv files, $movie_imdb_count movie files), ",
 	  " took ",
-	  timetaken(\@lt_db_maint_begin, \@lt_db_maint_end),
+	  dex::util::timetaken(\@lt_db_maint_begin, \@lt_db_maint_end),
 	  "\n",
 ) if $s{verbose} ge 1;
 
 
 
 my @t2 = localtime;
-print "% $0 finished at ", nicetime(\@t2, "time"), " took ", timetaken(\@t1, \@t2), "\n" if $s{verbose} ge 1;
+print "% $0 finished at ", dex::util::nicetime(\@t2, "time"), " took ", dex::util::timetaken(\@t1, \@t2), "\n" if $s{verbose} ge 1;
 exit 0;
 
 ## subs below
@@ -233,7 +230,7 @@ sub crawl_dir {
 	);
 	
 	my @lt2 = localtime;
-	print "\tdone, added $added, (total: ", scalar keys %h, "), took " . timetaken(\@lt1, \@lt2), "\n" if $s{verbose} ge 2;
+	print "\tdone, added $added, (total: ", scalar keys %h, "), took " . dex::util::dex::util::timetaken(\@lt1, \@lt2), "\n" if $s{verbose} ge 2;
 	
 	return %h;
 }
@@ -278,8 +275,8 @@ sub put_stats {
 		files_added_in_last_run => $files_added_in_last_run,
 		files_tv_count          => $files_tv_count,
 		files_movie_count       => $files_movie_count,
-		files_size_total        => nicesize($files_size_total),
-		files_size_added        => nicesize($files_size_added),
+		files_size_total        => dex::util::nicesize($files_size_total),
+		files_size_added        => dex::util::nicesize($files_size_added),
 	);
 	
 
