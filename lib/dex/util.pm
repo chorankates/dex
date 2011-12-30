@@ -16,8 +16,15 @@ use constant SETTINGS => 'conf/conor-dex.xml';
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(log_error create_db nicetime nicesize timetaken cleanup_sql cleanup_uri cleanup_filename escape_uri);
-our @EXPORT = qw(get_info_from_filename get_md5 get_sql put_sql database_maintenance download_file get_imdb get_wikipedia get_settings put_settings);
+our @EXPORT_OK = qw(
+    log_error create_db nicetime nicesize timetaken
+    cleanup_sql cleanup_uri cleanup_filename escape_uri
+);
+our @EXPORT = qw(
+    get_info_from_filename get_md5 get_sql put_sql
+    database_maintenance download_file get_imdb
+    get_wikipedia get_settings put_settings is_process
+);
 
 # todo
 # now that we're collecting wikipedia urls for tv shows, it makes sense to abstract the urls based on show title to another table..
@@ -1049,6 +1056,32 @@ sub escape_uri {
 	}
  	
 	return $results;
+}
+
+sub is_process {
+    # is_process($process) - returns 0 if $process is not running, 1 if it is
+    my ($os, $process, $match, @procs);
+    
+    $process = shift;
+    
+    $os = ($^O =~ /unix|linux|solaris|darwin/i) ? "Unix" : "Windows";
+    
+    if ($os eq "Unix") {
+		# Unix handling..
+		my $long_cmd  = "ps -e -o cmd"; # returns the command and args
+		my $short_cmd = "ps -e -o comm"; # returns just the command
+		
+		@procs = `$short_cmd`;
+    } else {
+        # you should be using a real OS anyway
+        warn "WARN:: starting crawls via CGI is not supported on Windows.";
+        return 1;
+    }
+    
+    ## using grep instead of ~~ to support Perl 5.8
+    $match = grep { $procs[$_] =~ /$process/i } 0..$#procs;
+    
+    return ($match > 0) ? 1 : 0;
 }
 
 1;

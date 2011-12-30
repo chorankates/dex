@@ -6,6 +6,7 @@
 # admin page
     #x add a way to view errors
     # need to add controls to force a new scan
+# move %dex::util::settings / %settings into XML, then everyone can read/write to the same location
 # need to do some processing on links to prevent accidental (or intentional) sql injection from episodes with quotation marks in them -- also, they need to be carets to match database entries
 # add a 'summary' page that pulls unique attributes from both databases (total count, tv episodes, top directors / actors, etc) -- this probably should also be stored in a table and could be updated by db_maintenance()
 # need to determine how feasible it is to allow ORDER BY queries to be used in $addl_sql, since we're adding results to a hash.. would have to give each entry an incremental number coming out of the db, then sort based on that when displaying the results
@@ -17,6 +18,7 @@ use 5.010;
 
 use CGI ':standard';
 use CGI::Carp 'fatalsToBrowser'; # dbgz
+use Cwd;
 use Data::Dumper;
 use DBD::SQLite;
 use File::Basename;
@@ -727,4 +729,39 @@ sub make_query_link {
     my $post = "'>$text</a>";
     
     return $pre . $uri . $post;
+}
+
+sub call_crawl {
+    # call_crawl() -- for now, takes no parameters, will just chdir() to the dex-crawl dir and execute 'perl dex-crawl.pl'
+    # returns 0 for a successfully started crawl, 1 on error (or if another crawl is already in progress)
+    my ($cmd, $new_dir, $old_dir, @output);
+
+    ## %dex::util::settings has the options set in dex-crawl.pl -- should really externalize this into an XML file so they aren't just changed at runtime
+    $old_dir = Cwd::getcwd;
+    $new_dir = $s{general}{working_dir};
+    $cmd     = 'perl dex-crawl.pl';
+    
+    # do some error checking
+    if (! -f $new_dir) {
+        warn "WARN:: directory [$new_dir] does not exist, cannot run crawl";
+        return 1;
+    }
+    
+    if (is_process('dex.pl')) {
+        warn "WARN:: crawl already in progress!";
+        return 1;
+    }
+    
+    chdir($new_dir) or return 1;
+    
+    @output = `$cmd`;
+    
+    if ($? != 0) {
+        warn "WARN:: unable to execute [$cmd]: exit code: $? / output: @output\n";
+        return 1;
+    }
+    
+    chdir($old_dir); # under what circumstances would this fail?
+    
+    return 0;
 }
