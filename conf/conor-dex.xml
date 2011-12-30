@@ -1,0 +1,64 @@
+<xml>
+    <!-- general/shared settings -->
+    <general>
+        <!-- where to find the media to index -->
+        <database>dex.sqlite</database>
+        <debug>1</debug>
+           
+        <dir>
+            <tv>
+                <tv1>/media/tv1</tv1>
+                <tv2>/media/tv2</tv2>
+            </tv>
+            <movies>
+                <movies1>/media/movies</movies1>
+            </movies>
+        </dir>
+        
+        <error_file>error_dex.log</error_file>
+        
+        <!-- table names by media type -->
+        <table>
+            <tv>tbl_tv</tv>
+            <movies>tbl_movies</movies>
+            <stats>tbl_stats</stats>
+        </table>
+    
+        <!-- specifies what types of media to look for (for now, just tv/movies, both enabled) -->    
+        <media_types>
+            <a>tv</a>
+            <b>movies</b>
+        </media_types>
+        
+    </general>
+    
+    <cgi>
+        <!-- any way we can safely dynamically determine this? -->
+        <host>http://192.168.1.122</host>
+        <host_dir>/dex/</host_dir>
+        
+        <cgi_dir>/cgi-bin/</cgi_dir>
+        <torrent_dir>/home/conor/dl/_torrent/src/</torrent_dir>
+        
+        <db_folder>/home/conor/dex/</db_folder>
+        
+        <results_limit>500</results_limit> <!-- puts a hard cap on any DB transactions, applied after any LIMIT modifiers -->
+        
+    </cgi>
+
+    <crawler>
+        <dbg_storable>latest_index.sbl</dbg_storable>
+        
+        <retrieve_imdb>1</retrieve_imdb>
+        <retrieve_wikipedia>1</retrieve_wikipedia>
+        
+        <verbose>1</verbose>
+
+        <!-- LWP settings -->
+        <browser>
+            <useragent>Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.16) Gecko/20110323 Ubuntu/10.10 (maverick) Firefox/3.6.16</useragent>
+            <timeout>10</timeout>
+        </browser>
+    </crawler>
+    
+</xml>

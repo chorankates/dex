@@ -25,8 +25,9 @@ existing functionality:
 
 todo:
 	- externalize configuration into XML / YAML so that it can be more easily shared across script
+		- good progress here, but need to figure out the ForceArray/ForceContent magic we're looking for
+		
 	- finish get_wikipedia() implementation
-	- implement limits on the number of items returned in a search 
 	- add 'rescan' functions to admin console
 	- display contents of tbl_stats on admin console
 	- use HTML::TagCloud::Simple to show some clouds on landing page

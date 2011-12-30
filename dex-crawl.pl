@@ -23,7 +23,7 @@ use LWP::UserAgent;
 use Storable;
 use Time::HiRes;
 
-my (%f, %files, %s); # flags, results from dir_crawling, settings
+my (%f, %files, %s, %xml); # flags, results from dir_crawling, settings, XML unprocessed hash
 
 %s = (
 	database           => 'dex.sqlite', # this can be overloaded, assume that it exists in $s{working_dir}
@@ -61,6 +61,13 @@ my (%f, %files, %s); # flags, results from dir_crawling, settings
 );
 
 GetOptions(\%f, "help", "dir:s", "verbose:i", "database:s", "working_dir:s", "debug:i", "rescan:i");
+
+%xml = %{ get_settings() } ;
+
+my $r = put_settings();
+
+die;
+
 $s{$_} = $f{$_} foreach (keys %f);
 $s{image_dir} = File::Spec->catdir($s{working_dir}, "media_images");
 

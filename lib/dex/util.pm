@@ -8,15 +8,60 @@ use Digest::MD5;
 use File::Basename;
 use LWP::UserAgent;
 use URI::Escape;
+use XML::Simple;
+
+# this path needs to be set based on where the user is invoking from, not where it is in relation to this .pm
+use constant SETTINGS => 'conf/conor-dex.xml';
+#use constant SETTINGS => '../../conf/default-dex.xml';
 
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(log_error create_db nicetime nicesize timetaken cleanup_sql cleanup_uri cleanup_filename escape_uri);
-our @EXPORT = qw(get_info_from_filename get_md5 get_sql put_sql database_maintenance download_file get_imdb get_wikipedia);
+our @EXPORT = qw(get_info_from_filename get_md5 get_sql put_sql database_maintenance download_file get_imdb get_wikipedia get_settings put_settings);
 
 # todo
 # now that we're collecting wikipedia urls for tv shows, it makes sense to abstract the urls based on show title to another table..
 # need to update get_imdb/wikipedia to store movie/episode summary in 'notes'
+
+sub get_settings {
+	# get_settings() -- reads the settings in SETTINGS, and returns a Perlish hashref (or error message)
+    my ($doc, $ffp, $worker);
+    
+    $ffp = SETTINGS;
+    
+    $worker = XML::Simple->new();
+    
+    eval {
+        $doc = $worker->XMLin($ffp);
+    };
+    
+    if ($@) {
+        return "ERROR:: unable to read [$ffp]: $@";
+    }
+    
+    return $doc;
+}
+
+sub put_settings {
+	# put_settings(\%hash) -- writes the settings in %hash to SETTINGS, returns 0|1 for success|failure
+    my ($ffp, $href, $worker, $fh);
+
+    $ffp  = SETTINGS;    
+    $href = shift;
+    
+    $worker = XML::Simple->new();
+    
+    open ($fh, '>', $ffp) or do {
+        warn "WARN:: unable to write settings to [$ffp]: $!";
+        return 1;
+    };
+    
+    print $fh $worker->XMLout($href, noattr => 1);
+    
+    close($fh);
+    
+    return 0;
+}
 
 sub get_info_from_filename {
 	# get_info_from_filename($ffp, $file, $type) -- returns a hash of information based on $ffp and $type (tv|movies)
