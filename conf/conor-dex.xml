@@ -1,10 +1,11 @@
 <xml>
     <!-- general/shared settings -->
     <general>
-        <!-- where to find the media to index -->
+        <working_dir>/home/conor/git/dex/</working_dir> <!-- this will be dynamically updated whenever dex-crawl.pl is run -->
+        
         <database>dex.sqlite</database>
         <debug>1</debug>
-           
+        
         <dir>
             <tv>
                 <tv1>/media/tv1</tv1>
@@ -47,7 +48,7 @@
     </cgi>
 
     <crawler>
-        <dbg_storable>latest_index.sbl</dbg_storable>
+        <dbg_storable>latest_index.sbl</dbg_storable> <!-- this is only used if general/debugging is enabled -->
         
         <retrieve_imdb>1</retrieve_imdb>
         <retrieve_wikipedia>1</retrieve_wikipedia>

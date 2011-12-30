@@ -1,7 +1,7 @@
 <xml>
     <!-- general/shared settings -->
     <general>
-        <!-- where to find the media to index -->
+        <working_dir>/directory/where/dex.pl/is</working_dir>
         <database>dex.sqlite</database>
         <debug>1</debug>
            
