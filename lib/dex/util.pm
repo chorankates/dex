@@ -11,8 +11,8 @@ use URI::Escape;
 use XML::Simple;
 
 # this path needs to be set based on where the user is invoking from, not where it is in relation to this .pm
-use constant SETTINGS => 'conf/conor-dex.xml';
-#use constant SETTINGS => '../../conf/default-dex.xml';
+our $SETTINGS = 'conf/conor-dex.xml';
+#our $SETTINGS = '../../conf/default-dex.xml';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -31,10 +31,10 @@ our @EXPORT = qw(
 # need to update get_imdb/wikipedia to store movie/episode summary in 'notes'
 
 sub get_settings {
-	# get_settings() -- reads the settings in SETTINGS, and returns a Perlish hashref (or error message)
+	# get_settings() -- reads the settings in $SETTINGS, and returns a Perlish hashref (or error message)
     my ($doc, $ffp, $worker);
     
-    $ffp = SETTINGS;
+    $ffp = $SETTINGS;
     
     $worker = XML::Simple->new();
     
@@ -53,7 +53,7 @@ sub put_settings {
 	# put_settings(\%hash) -- writes the settings in %hash to SETTINGS, returns 0|1 for success|failure
     my ($ffp, $href, $worker, $fh);
 
-    $ffp  = SETTINGS;    
+    $ffp  = $SETTINGS;    
     $href = shift;
     
     $worker = XML::Simple->new();
